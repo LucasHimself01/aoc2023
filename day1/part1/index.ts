@@ -1,28 +1,57 @@
 import { readFileSync } from 'fs';
 
+const numbersMap: Record<string, string> = {
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+    'eight': '8',
+    'nine': '9',
+};
+
 // just read numbers
-const lines = readFileSync('./day1/input2.txt').toString().split('\n');
+const lines = readFileSync('./day1/part1/input2.txt').toString().split('\n');
 
 const calibrationValues = lines.reduce<number[]>((acc, line) => {
     if (!line) {
         return acc;
     }
 
-    const numbersMatches = line.matchAll(/\d/g);
-    const array = Array.from(numbersMatches);
-    const matches = array.map(match => match[0])
+    const chars = line.split('')
+    const backwardsChars = [...chars];
 
-    const firstMatch = matches[0];
-    const lastMatch = matches[matches.length - 1];
+    let forwardBuffer = '';
+    let forwardNumberFound = '';
+    while (chars.length || !forwardNumberFound) {
+        forwardBuffer = forwardBuffer + chars.shift();
 
-    const number = Number(firstMatch + lastMatch);
+        const match = forwardBuffer.match(/\d|one|two|three|four|five|six|seven|eight|nine/);
+        if (match) {
+            const numberMatch = match[0]; 
+
+            forwardNumberFound = numbersMap[numberMatch] ?? numberMatch;
+        }
+    }
+
+    let backwardsBuffer = '';
+    let backwardsNumberFound = '';
+    while (chars.length || !backwardsNumberFound) {
+        backwardsBuffer = (backwardsChars.pop() ?? '') + backwardsBuffer;
+
+        const match = backwardsBuffer.match(/\d|one|two|three|four|five|six|seven|eight|nine/);
+        if (match) {
+            const numberMatch = match[0]; 
+
+            backwardsNumberFound = numbersMap[numberMatch] ?? numberMatch;
+        }
+    }
+
+    const number = Number(forwardNumberFound + backwardsNumberFound);
 
     acc.push(number);
-
-    console.log(line);
-    console.log(firstMatch);
-    console.log(lastMatch);
-    console.log(number);
 
     return acc;
 }, []);
